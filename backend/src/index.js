@@ -8,27 +8,22 @@ import User from './models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-// Configuración de variables de entorno
 dotenv.config();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Conexión a MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/encuestas_db')
   .then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.error('Error conectando a MongoDB:', err));
 
-// Rutas básicas
 app.get('/', (req, res) => {
   res.json({ message: 'API de Encuestas Dinámicas' });
 });
 
-// Middleware de autenticación JWT
 function auth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -44,7 +39,6 @@ function auth(req, res, next) {
   }
 }
 
-// Crear encuesta (protegido)
 app.post('/api/surveys', auth, async (req, res) => {
   try {
     const survey = new Survey({ ...req.body, createdBy: req.user.userId });
@@ -55,7 +49,6 @@ app.post('/api/surveys', auth, async (req, res) => {
   }
 });
 
-// Obtener encuestas propias (protegido)
 app.get('/api/surveys', auth, async (req, res) => {
   try {
     const surveys = await Survey.find({ createdBy: req.user.userId }).sort({ createdAt: -1 });
@@ -65,7 +58,6 @@ app.get('/api/surveys', auth, async (req, res) => {
   }
 });
 
-// Obtener encuesta pública por ID
 app.get('/api/surveys/:id', async (req, res) => {
   try {
     const survey = await Survey.findById(req.params.id);
@@ -76,7 +68,6 @@ app.get('/api/surveys/:id', async (req, res) => {
   }
 });
 
-// Modelo de respuesta
 const ResponseSchema = new mongoose.Schema({
   surveyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Survey', required: true },
   answers: [
@@ -89,7 +80,6 @@ const ResponseSchema = new mongoose.Schema({
 });
 const Response = mongoose.models.Response || mongoose.model('Response', ResponseSchema);
 
-// Enviar respuesta a encuesta (público)
 app.post('/api/surveys/:id/responses', async (req, res) => {
   try {
     const { answers } = req.body;
@@ -101,17 +91,34 @@ app.post('/api/surveys/:id/responses', async (req, res) => {
   }
 });
 
-// Obtener respuestas de una encuesta (protegido)
-app.get('/api/surveys/:id/responses', auth, async (req, res) => {
+app.get('/api/surveys/:id/responses', async (req, res) => {
   try {
-    const responses = await Response.find({ surveyId: req.params.id });
-    res.json(responses);
+    let userId = null;
+    // Intenta extraer el usuario del token si existe
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        userId = decoded.userId;
+      } catch (err) {
+        // Token inválido, ignorar
+      }
+    }
+    const survey = await Survey.findById(req.params.id);
+    if (!survey) return res.status(404).json({ error: 'Encuesta no encontrada' });
+    // Solo el creador puede ver las respuestas
+    if (userId && String(survey.createdBy) === String(userId)) {
+      const responses = await Response.find({ surveyId: req.params.id });
+      return res.json(responses);
+    } else {
+      return res.json([]); // No mostrar respuestas a otros
+    }
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener respuestas' });
   }
 });
 
-// Registro de usuario
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -126,7 +133,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// Login de usuario
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -141,10 +147,27 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// Puerto
+app.delete('/api/surveys/:id', auth, async (req, res) => {
+  try {
+    const survey = await Survey.findOneAndDelete({ _id: req.params.id, createdBy: req.user.userId });
+    if (!survey) return res.status(404).json({ error: 'Encuesta no encontrada o no tienes permisos' });
+    res.json({ message: 'Encuesta eliminada correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar la encuesta' });
+  }
+});
+
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    res.json({ message: 'Si el correo existe, se ha enviado un enlace para restablecer la contraseña.' });
+  } catch (error) {
+    res.status(500).json({ error: 'No se pudo procesar la solicitud de recuperación.' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
-// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 }); 

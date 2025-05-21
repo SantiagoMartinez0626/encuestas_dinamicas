@@ -122,206 +122,218 @@ const CreateSurvey: React.FC = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
-      <AppBar 
-        position="static" 
-        elevation={0}
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: '#f8f9fa',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        py: 6,
+      }}
+    >
+      <Box
         sx={{
-          background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-          mb: 4
+          width: '100%',
+          maxWidth: 700,
+          background: '#fff',
+          borderRadius: 3,
+          boxShadow: '0 2px 8px 0 rgba(60,64,67,.08)',
+          mb: 4,
+          px: { xs: 2, md: 4 },
+          py: { xs: 3, md: 4 },
+          borderLeft: '6px solid #1976d2',
         }}
       >
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700 }}>
-            Crear Encuesta Dinámica
-          </Typography>
-        </Toolbar>
-      </AppBar>
-
-      <Container maxWidth="md" sx={{ pb: 8 }}>
-        <Paper 
-          elevation={3}
-          sx={{ 
-            p: { xs: 2, md: 4 }, 
-            borderRadius: 4,
-            position: 'relative',
-            overflow: 'visible'
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{
+            fontWeight: 700,
+            color: '#1976d2',
+            mb: 2,
+            letterSpacing: 0.5,
           }}
         >
-          <Typography 
-            variant="h4" 
-            gutterBottom 
-            sx={{ 
-              fontWeight: 700, 
+          Nueva Encuesta
+        </Typography>
+        <TextField
+          fullWidth
+          label="Título de la encuesta"
+          value={currentSurvey.title}
+          onChange={(e) => setCurrentSurvey({ ...currentSurvey, title: e.target.value })}
+          margin="normal"
+          required
+          error={!currentSurvey.title}
+          helperText={!currentSurvey.title ? 'El título es requerido' : ''}
+          sx={{
+            background: '#f8f9fa',
+            borderRadius: 2,
+            mb: 2,
+            '& .MuiOutlinedInput-root': {
+              background: '#f8f9fa',
+              borderRadius: 2,
+              '& fieldset': {
+                borderColor: '#dadce0',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#1976d2',
+                boxShadow: '0 0 0 2px #21CBF3',
+              },
+            },
+            '& .MuiFormHelperText-root': {
+              color: '#d32f2f',
+              fontWeight: 600,
+            },
+          }}
+        />
+        <TextField
+          fullWidth
+          label="Descripción"
+          value={currentSurvey.description}
+          onChange={(e) => setCurrentSurvey({ ...currentSurvey, description: e.target.value })}
+          multiline
+          rows={3}
+          margin="normal"
+          sx={{
+            background: '#f8f9fa',
+            borderRadius: 2,
+            mb: 1,
+            '& .MuiOutlinedInput-root': {
+              background: '#f8f9fa',
+              borderRadius: 2,
+              '& fieldset': {
+                borderColor: '#dadce0',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#1976d2',
+                boxShadow: '0 0 0 2px #21CBF3',
+              },
+            },
+          }}
+        />
+      </Box>
+      <Box sx={{ width: '100%', maxWidth: 700 }}>
+        {currentSurvey.questions?.length === 0 && (
+          <Box
+            sx={{
               textAlign: 'center',
-              color: 'primary.main',
-              mb: 4
+              py: 6,
+              bgcolor: '#fff',
+              borderRadius: 3,
+              border: '2px dashed #dadce0',
+              color: '#888',
+              mb: 4,
+              boxShadow: '0 2px 8px 0 rgba(60,64,67,.08)',
             }}
           >
-            Nueva Encuesta
-          </Typography>
-          
-          <TextField
-            fullWidth
-            label="Título de la encuesta"
-            value={currentSurvey.title}
-            onChange={(e) => setCurrentSurvey({ ...currentSurvey, title: e.target.value })}
-            margin="normal"
-            required
-            error={!currentSurvey.title}
-            helperText={!currentSurvey.title ? 'El título es requerido' : ''}
-            sx={{ mb: 3 }}
-          />
-          
-          <TextField
-            fullWidth
-            label="Descripción"
-            value={currentSurvey.description}
-            onChange={(e) => setCurrentSurvey({ ...currentSurvey, description: e.target.value })}
-            multiline
-            rows={3}
-            margin="normal"
-            sx={{ mb: 4 }}
-          />
-
-          <Divider sx={{ my: 4 }} />
-
-          {currentSurvey.questions?.length === 0 && (
-            <Box 
-              sx={{ 
-                textAlign: 'center', 
-                py: 6,
-                bgcolor: 'background.default',
-                borderRadius: 2,
-                border: '2px dashed',
-                borderColor: 'divider'
-              }}
-            >
-              <Typography variant="body1" color="text.secondary">
-                Agrega tu primera pregunta usando el botón <b>+</b> de abajo
-              </Typography>
-            </Box>
-          )}
-
-          {currentSurvey.questions?.map((question, index) => (
-            <Box 
-              key={question.id} 
-              sx={{ 
-                mb: 3,
-                position: 'relative',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                }
-              }}
-            >
-              {renderQuestion(question)}
-              <Tooltip title="Editar pregunta">
-                <IconButton
-                  sx={{
-                    position: 'absolute',
-                    right: 8,
-                    top: 8,
-                    bgcolor: 'background.paper',
-                    boxShadow: 2,
-                    '&:hover': {
-                      bgcolor: 'primary.light',
-                      color: 'white'
-                    }
-                  }}
-                  onClick={() => setEditingQuestion(question)}
-                >
-                  <EditIcon />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          ))}
-
-          <Box sx={{ position: 'fixed', bottom: 32, right: 32 }}>
-            <Tooltip title="Agregar pregunta">
-              <Fab
-                color="primary"
-                onClick={(e) => setAnchorEl(e.currentTarget)}
+            <Typography variant="body1">
+              Agrega tu primera pregunta usando el botón <b>+</b> de la derecha
+            </Typography>
+          </Box>
+        )}
+        {currentSurvey.questions?.map((question, index) => (
+          <Box
+            key={question.id}
+            sx={{
+              mb: 4,
+              background: '#fff',
+              borderRadius: 3,
+              boxShadow: '0 2px 8px 0 rgba(60,64,67,.08)',
+              borderLeft: '6px solid #1976d2',
+              p: { xs: 2, md: 3 },
+              position: 'relative',
+              transition: 'box-shadow 0.2s',
+              '&:hover': {
+                boxShadow: '0 4px 16px 0 rgba(60,64,67,.16)',
+              },
+            }}
+          >
+            <QuestionEditor question={question} onUpdate={handleUpdateQuestion} />
+            <Tooltip title="Eliminar pregunta">
+              <IconButton
                 sx={{
-                  boxShadow: 3,
+                  position: 'absolute',
+                  right: 8,
+                  top: 8,
+                  bgcolor: '#fdeaea',
+                  color: '#d32f2f',
+                  boxShadow: 1,
                   '&:hover': {
-                    transform: 'scale(1.1)',
+                    bgcolor: '#d32f2f',
+                    color: '#fff',
                   },
-                  transition: 'all 0.3s ease'
                 }}
+                onClick={() => deleteQuestion(question.id)}
               >
-                <AddIcon />
-              </Fab>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              </IconButton>
             </Tooltip>
           </Box>
-
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={() => setAnchorEl(null)}
-            PaperProps={{
-              elevation: 3,
-              sx: { mt: 1 }
+        ))}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={() => setAnchorEl(null)}
+          PaperProps={{
+            elevation: 3,
+            sx: { mt: 1 }
+          }}
+        >
+          <MenuItem onClick={() => handleAddQuestion('short')}>Texto Corto</MenuItem>
+          <MenuItem onClick={() => handleAddQuestion('long')}>Texto Largo</MenuItem>
+          <MenuItem onClick={() => handleAddQuestion('multiple')}>Opción Múltiple</MenuItem>
+          <MenuItem onClick={() => handleAddQuestion('checkbox')}>Casillas de Verificación</MenuItem>
+          <MenuItem onClick={() => handleAddQuestion('scale')}>Escala</MenuItem>
+        </Menu>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6, mb: 8 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={handleSaveSurvey}
+            disabled={loading || !currentSurvey.title || !currentSurvey.questions?.length}
+            sx={{
+              px: 6,
+              py: 1.5,
+              fontWeight: 700,
+              borderRadius: 3,
+              background: 'linear-gradient(90deg, #1976d2 0%, #21CBF3 100%)',
+              color: '#fff',
+              boxShadow: 3,
+              letterSpacing: 1,
+              transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)',
+              '&:hover': {
+                background: 'linear-gradient(90deg, #21CBF3 0%, #1976d2 100%)',
+                boxShadow: 5,
+              },
+              opacity: loading || !currentSurvey.title || !currentSurvey.questions?.length ? 0.6 : 1,
             }}
           >
-            <MenuItem onClick={() => handleAddQuestion('short')}>Texto Corto</MenuItem>
-            <MenuItem onClick={() => handleAddQuestion('long')}>Texto Largo</MenuItem>
-            <MenuItem onClick={() => handleAddQuestion('multiple')}>Opción Múltiple</MenuItem>
-            <MenuItem onClick={() => handleAddQuestion('checkbox')}>Casillas de Verificación</MenuItem>
-            <MenuItem onClick={() => handleAddQuestion('scale')}>Escala</MenuItem>
-          </Menu>
-
-          <Dialog
-            open={Boolean(editingQuestion)}
-            onClose={() => setEditingQuestion(null)}
-            maxWidth="sm"
-            fullWidth
-            PaperProps={{
-              elevation: 24,
-              sx: { borderRadius: 2 }
+            {loading ? 'Guardando...' : 'Guardar Encuesta'}
+          </Button>
+        </Box>
+      </Box>
+      <Box sx={{ position: 'fixed', top: 100, right: 32 }}>
+        <Tooltip title="Agregar pregunta">
+          <Fab
+            color="primary"
+            onClick={(e) => setAnchorEl(e.currentTarget)}
+            sx={{
+              boxShadow: 3,
+              '&:hover': {
+                transform: 'scale(1.1)',
+              },
+              transition: 'all 0.3s ease',
+              background: '#fff',
+              color: '#1976d2',
+              border: '2px solid #1976d2',
             }}
           >
-            {editingQuestion && (
-              <>
-                <DialogTitle>
-                  <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
-                    Editar Pregunta
-                  </Typography>
-                </DialogTitle>
-                <DialogContent>
-                  <QuestionEditor
-                    question={editingQuestion}
-                    onUpdate={handleUpdateQuestion}
-                  />
-                </DialogContent>
-              </>
-            )}
-          </Dialog>
-
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 6 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={handleSaveSurvey}
-              disabled={loading || !currentSurvey.title || !currentSurvey.questions?.length}
-              sx={{
-                px: 6,
-                py: 1.5,
-                fontWeight: 600,
-                borderRadius: 2,
-                boxShadow: 2,
-                '&:hover': {
-                  boxShadow: 4
-                }
-              }}
-            >
-              {loading ? 'Guardando...' : 'Guardar Encuesta'}
-            </Button>
-          </Box>
-        </Paper>
-      </Container>
-
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+      </Box>
       <Snackbar
         open={Boolean(error)}
         autoHideDuration={6000}
