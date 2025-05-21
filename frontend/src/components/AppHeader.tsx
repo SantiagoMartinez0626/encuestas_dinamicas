@@ -31,28 +31,35 @@ const AppHeader: React.FC = () => {
         >
           QBox
         </Typography>
-        <Button color="inherit" component={Link} to="/create-survey" sx={{ fontWeight: 600, mr: 1 }}>
-          Crear Encuesta
-        </Button>
-        <Button color="inherit" component={Link} to="/my-surveys" sx={{ fontWeight: 600, mr: 1 }}>
-          Mis Encuestas
-        </Button>
         {user ? (
-          <Box>
-            <IconButton onClick={handleMenu} color="inherit">
-              <Avatar sx={{ bgcolor: 'secondary.main', width: 32, height: 32, fontWeight: 700 }}>
-                {user.name[0].toUpperCase()}
-              </Avatar>
-            </IconButton>
-            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-              <MenuItem disabled>{user.name}</MenuItem>
-              <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
-            </Menu>
-          </Box>
+          <>
+            <Button color="inherit" component={Link} to="/create-survey" sx={{ fontWeight: 600, mr: 1 }}>
+              Crear Encuesta
+            </Button>
+            <Button color="inherit" component={Link} to="/my-surveys" sx={{ fontWeight: 600, mr: 1 }}>
+              Mis Encuestas
+            </Button>
+            <Box>
+              <IconButton onClick={handleMenu} color="inherit">
+                <Avatar sx={{ bgcolor: 'secondary.main', width: 32, height: 32, fontWeight: 700 }}>
+                  {user.name[0].toUpperCase()}
+                </Avatar>
+              </IconButton>
+              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                <MenuItem disabled>{user.name}</MenuItem>
+                <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
+              </Menu>
+            </Box>
+          </>
         ) : (
-          <Button color="inherit" component={Link} to="/login" sx={{ fontWeight: 600 }}>
-            Iniciar sesión
-          </Button>
+          <>
+            <Button color="inherit" component={Link} to="/login" sx={{ fontWeight: 600, mr: 1 }}>
+              Iniciar sesión
+            </Button>
+            <Button color="inherit" component={Link} to="/register" sx={{ fontWeight: 600 }}>
+              Registrarse
+            </Button>
+          </>
         )}
       </Toolbar>
     </AppBar>

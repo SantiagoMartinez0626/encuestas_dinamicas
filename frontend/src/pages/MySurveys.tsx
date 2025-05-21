@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Button, IconButton, Snackbar, Alert, CircularProgress, Tooltip } from '@mui/material';
-import { ContentCopy as ContentCopyIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import { ContentCopy as ContentCopyIcon, Visibility as VisibilityIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import surveyService from '../services/surveyService';
 import { Survey } from '../types/survey';
 import { Link } from 'react-router-dom';
@@ -10,6 +10,7 @@ const MySurveys: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSurveys = async () => {
@@ -32,9 +33,22 @@ const MySurveys: React.FC = () => {
     setCopied(true);
   };
 
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar esta encuesta? Esta acción no se puede deshacer.')) return;
+    try {
+      setDeleting(id);
+      await surveyService.deleteSurvey(id);
+      setSurveys((prev) => prev.filter((s) => (s.id || s._id) !== id));
+    } catch (err) {
+      setError('Error al eliminar la encuesta');
+    } finally {
+      setDeleting(null);
+    }
+  };
+
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', py: 6 }}>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 4, textAlign: 'center' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa', py: 6 }}>
+      <Typography variant="h4" sx={{ fontWeight: 700, mb: 4, textAlign: 'center', color: '#222' }}>
         Mis Encuestas
       </Typography>
       {loading ? (
@@ -44,31 +58,57 @@ const MySurveys: React.FC = () => {
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (
-        <Box sx={{ maxWidth: 700, mx: 'auto', display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box sx={{ maxWidth: 700, mx: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
           {surveys.length === 0 && (
             <Typography color="text.secondary" align="center">
               No has creado ninguna encuesta aún.
             </Typography>
           )}
           {surveys.map((survey) => (
-            <Paper key={survey.id || survey._id} sx={{ p: 3, borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+            <Box
+              key={survey.id || survey._id}
+              sx={{
+                background: '#fff',
+                borderRadius: 3,
+                boxShadow: '0 2px 8px 0 rgba(60,64,67,.08)',
+                borderLeft: '6px solid #1976d2',
+                p: { xs: 2, md: 3 },
+                mb: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                transition: 'box-shadow 0.2s',
+                '&:hover': {
+                  boxShadow: '0 4px 16px 0 rgba(60,64,67,.16)',
+                },
+              }}
+            >
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>{survey.title}</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#222', mb: 0.5 }}>{survey.title}</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{survey.description}</Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Tooltip title="Ver encuesta pública">
-                    <IconButton component={Link} to={`/survey/${survey.id || survey._id}`} color="primary">
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                {String(survey.createdBy) === localStorage.getItem('userId') && (
+                  <Tooltip title="Ver encuesta y análisis">
+                    <IconButton component={Link} to={`/survey/${survey.id || survey._id}`} sx={{ color: '#1976d2', bgcolor: '#e3f0fd', '&:hover': { bgcolor: '#1976d2', color: '#fff' }, transition: 'all 0.2s' }}>
                       <VisibilityIcon />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Copiar enlace público">
-                    <IconButton onClick={() => handleCopy(survey.id || survey._id)} color="secondary">
-                      <ContentCopyIcon />
+                )}
+                <Tooltip title="Copiar enlace público">
+                  <IconButton onClick={() => handleCopy(survey.id || survey._id)} sx={{ color: '#9c27b0', bgcolor: '#f3e6fa', '&:hover': { bgcolor: '#9c27b0', color: '#fff' }, transition: 'all 0.2s' }}>
+                    <ContentCopyIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Eliminar encuesta">
+                  <span>
+                    <IconButton onClick={() => handleDelete(survey.id || survey._id)} sx={{ color: '#d32f2f', bgcolor: '#fdeaea', '&:hover': { bgcolor: '#d32f2f', color: '#fff' }, transition: 'all 0.2s' }} disabled={deleting === (survey.id || survey._id)}>
+                      <DeleteIcon />
                     </IconButton>
-                  </Tooltip>
-                </Box>
+                  </span>
+                </Tooltip>
               </Box>
-            </Paper>
+            </Box>
           ))}
         </Box>
       )}
