@@ -1,18 +1,32 @@
+version: '3.8'
+
 services:
+  mongodb:
+    image: mongo:latest
+    container_name: encuestas_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - encuestas_network
+
   backend:
     build: ./backend
     container_name: encuestas_backend
     ports:
-      - "3001:3000"
+      - "3000:3000"
     volumes:
       - ./backend:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
-    working_dir: /app
-    command: npm start
+      - MONGODB_URI=mongodb://mongodb:27017/encuestas_db
+      - JWT_SECRET=tu_secreto_jwt_super_seguro
     depends_on:
-      - frontend
+      - mongodb
+    networks:
+      - encuestas_network
 
   frontend:
     build: ./frontend
@@ -24,6 +38,15 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-    working_dir: /app
-    command: npm run dev
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      - backend
+    networks:
+      - encuestas_network
+
+networks:
+  encuestas_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

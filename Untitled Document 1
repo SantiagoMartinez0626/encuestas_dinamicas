@@ -1,0 +1,30 @@
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   backend/Dockerfile
+	modified:   backend/package-lock.json
+	modified:   backend/package.json
+	modified:   docker-compose.yml
+	modified:   frontend/Dockerfile
+	modified:   frontend/package.json
+	deleted:    frontend/src/App.jsx
+	modified:   frontend/src/main.jsx
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	backend/src/
+	frontend/src/App.tsx
+	frontend/src/components/
+	frontend/src/pages/
+	frontend/src/services/
+	frontend/src/store/
+	frontend/src/theme.ts
+	frontend/src/types/
+	frontend/tsconfig.json
+	frontend/tsconfig.node.json
+	frontend/vite.config.ts
+
+no changes added to commit (use "git add" and/or "git commit -a")
