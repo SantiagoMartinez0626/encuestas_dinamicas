@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography, Paper, Button, TextField, CircularProgress, Alert, Snackbar } from '@mui/material';
+import { Box, Typography, Paper, Button, TextField, CircularProgress, Alert, Snackbar, IconButton } from '@mui/material';
 import surveyService from '../services/surveyService';
 import { Survey, SurveyResponse } from '../types/survey';
 import useUserStore from '../store/userStore';
+import { VolumeUp } from '@mui/icons-material';
 
 const SurveyPublic: React.FC = () => {
   const { id } = useParams();
@@ -68,7 +69,18 @@ const SurveyPublic: React.FC = () => {
         <form onSubmit={handleSubmit} style={{ marginBottom: 32 }}>
           {survey.questions.map((q) => (
             <Box key={q.id} sx={{ mb: 3 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{q.title}{q.required && <span style={{ color: 'red' }}>*</span>}</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  {q.title}{q.required && <span style={{ color: 'red' }}>*</span>}
+                </Typography>
+                <IconButton onClick={() => {
+                  const utterance = new window.SpeechSynthesisUtterance(q.title);
+                  utterance.lang = 'es-ES';
+                  window.speechSynthesis.speak(utterance);
+                }} color="primary" size="small">
+                  <VolumeUp />
+                </IconButton>
+              </Box>
               <TextField
                 fullWidth
                 required={q.required}
