@@ -94,7 +94,7 @@ const Home: React.FC = () => {
                 mx: 'auto',
               }}
             >
-              QBox te permite crear, personalizar y distribuir encuestas de manera sencilla y profesional. Analiza los resultados en tiempo real con reportes visuales, detecta tendencias y obtén insights accionables para tomar mejores decisiones. Ideal para empresas, instituciones educativas y equipos de investigación que buscan optimizar la recolección y el análisis de datos.
+              QBox te permite crear, personalizar y distribuir encuestas de manera sencilla y profesional. Analiza los resultados en tiempo real con reportes visuales, detecta tendencias y obtén insights accionables para tomar mejores decisiones.
             </Typography>
           </Box>
         </Grid>
